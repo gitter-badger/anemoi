@@ -1,0 +1,11 @@
+anemoi:
+  security:
+    enabled: true
+    realm: "Anemoi Container Registry"
+    user: "test"
+    pass: "{bcrypt}$2a$12$yXJTi6HD5WYiCztohV4C1uJykdEVMNdpzX1GQRPXM6DIhWt7TIpqm"
+      
+  storage:
+    path: "${STORAGE_PATH:/srv/storage}" 
+
+      

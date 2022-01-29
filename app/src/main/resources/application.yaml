@@ -1,0 +1,10 @@
+spring:
+  config:
+    import: 
+      - "classpath:defaults.yaml"
+      - "classpath:anemoi-defaults.yaml"
+  main:
+    banner-mode: false
+  mvc:
+    pathmatch:
+      matching-strategy: "ant_path_matcher"

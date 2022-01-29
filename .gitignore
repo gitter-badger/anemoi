@@ -1,5 +1,14 @@
+#Maven
+target
+
 # Compiled class file
 *.class
+
+#Eclipse
+.project
+.settings
+.classpath
+
 
 # Log file
 *.log
