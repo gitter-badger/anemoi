@@ -15,9 +15,15 @@
 		<spring.boot.version>2.6.3</spring.boot.version>
 		<apache.commons.codec.version>1.15</apache.commons.codec.version>
 		<spring.security.test.version>5.6.1</spring.security.test.version>
+		<jacoco.version>0.8.7</jacoco.version>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
+			<dependency>
+				<groupId>${project.groupId}</groupId>
+				<artifactId>common</artifactId>
+				<version>${project.version}</version>
+			</dependency>
 			<dependency>
 				<groupId>${project.groupId}</groupId>
 				<artifactId>controller</artifactId>
@@ -111,11 +117,33 @@
 					<artifactId>spring-boot-maven-plugin</artifactId>
 					<version>${spring.boot.version}</version>
 				</plugin>
+				<plugin>
+					<groupId>org.jacoco</groupId>
+					<artifactId>jacoco-maven-plugin</artifactId>
+					<version>${jacoco.version}</version>
+					<executions>
+						<execution>
+							<id>default-prepare-agent</id>
+							<goals>
+								<goal>prepare-agent</goal>
+							</goals>
+						</execution>
+						<execution>
+							<id>report</id>
+							<phase>verify</phase>
+							<goals>
+								<goal>report</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
 			</plugins>
 		</pluginManagement>
 	</build>
 	<modules>
 		<module>app</module>
 		<module>controller</module>
+		<module>common</module>
+		<module>report</module>
 	</modules>
 </project>

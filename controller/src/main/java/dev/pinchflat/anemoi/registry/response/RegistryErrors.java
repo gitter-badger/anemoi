@@ -29,4 +29,8 @@ public class RegistryErrors implements Serializable{
 		return new RegistryErrors(RegistryError.unauthorized());
 	}
 	
+	public static RegistryErrors internalServerError(Serializable detail) {
+		return new RegistryErrors(RegistryError.internalServerError(detail));
+	}
+	
 }

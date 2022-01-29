@@ -17,7 +17,8 @@ public enum RegistryErrorType {
 	TAG_INVALID("manifest tag did not match URI"),
 	UNAUTHORIZED("authentication required"),
 	DENIED("requested access to the resource is denied"),
-	UNSUPPORTED("The operation is unsupported.");
+	UNSUPPORTED("The operation is unsupported."),
+	INTERNAL_SERVER_ERROR("Internal server error");
 	
 	
 	@NotNull
