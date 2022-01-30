@@ -1,6 +1,0 @@
-spring:
-  main:
-    banner-mode: false
-  mvc:
-    pathmatch:
-      matching-strategy: "ant_path_matcher"

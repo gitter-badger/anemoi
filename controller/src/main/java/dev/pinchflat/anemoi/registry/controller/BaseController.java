@@ -9,14 +9,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 final class BaseController {
 
-	@GetMapping(path = "/v2")
+	@GetMapping("/v2")
 	public ResponseEntity<?> getBase() {
-		//@formatter:off
-		return ResponseEntity
-				.ok()
-				.contentType(APPLICATION_JSON)
+		return ResponseEntity //
+				.ok() //
+				.contentType(APPLICATION_JSON) //
 				.build();
-		//@formatter:on
 	}
-	
+
 }
