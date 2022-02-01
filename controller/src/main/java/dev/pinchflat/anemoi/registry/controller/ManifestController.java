@@ -15,7 +15,7 @@ import dev.pinchflat.anemoi.registry.Manifest;
 import dev.pinchflat.anemoi.registry.service.ManifestService;
 
 @RestController
-public class ManifestController {
+final class ManifestController {
 
 	private final ManifestService manifestService;
 

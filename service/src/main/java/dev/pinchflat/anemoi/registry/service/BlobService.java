@@ -1,7 +1,5 @@
 package dev.pinchflat.anemoi.registry.service;
 
-import javax.validation.constraints.NotNull;
-
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.validation.annotation.Validated;

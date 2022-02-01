@@ -24,7 +24,7 @@ import dev.pinchflat.anemoi.registry.error.RegistryErrorType;
 import dev.pinchflat.anemoi.registry.service.BlobService;
 
 @RestController
-public class BlobController {
+final class BlobController {
 
 	@NonNull
 	private final BlobService blobService;
