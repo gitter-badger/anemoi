@@ -11,9 +11,9 @@ import dev.pinchflat.anemoi.registry.Id;
 public class IdMethodArgumentResolver extends AbstractMethodArgumentResolver<Id> {
 
 	private final Pattern uriPattern = Pattern
-			.compile("\\/v2\\/(?<name>.*)\\/(blobs(\\/uploads)*|manifests)\\/(?<reference>.*)");
+			.compile("\\/v2\\/(?<repository>.*)\\/(blobs(\\/uploads)*|manifests)\\/(?<reference>.*)");
 
-	protected IdMethodArgumentResolver(Class<?> supportedType) {
+	protected IdMethodArgumentResolver() {
 		super(Id.class);
 	}
 
@@ -28,6 +28,6 @@ public class IdMethodArgumentResolver extends AbstractMethodArgumentResolver<Id>
 		if (matcher.find()) {
 			return new Id(matcher.group("repository"), matcher.group("reference"));
 		}
-		throw new IllegalArgumentException(requestPath+ " is not supported by id pattern");
+		throw new IllegalArgumentException(requestPath + " is not supported by id pattern");
 	}
 }
