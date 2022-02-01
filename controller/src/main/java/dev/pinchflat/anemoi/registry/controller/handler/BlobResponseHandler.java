@@ -46,14 +46,14 @@ public class BlobResponseHandler implements HandlerMethodReturnValueHandler {
 
 	private void generatePutRespponse(final Blob blob, final HttpServletResponse response) {
 		response.setStatus(HttpStatus.NO_CONTENT.value());
-		response.addHeader("Range", blob.getRange());
+		response.addHeader("Range", blob.range());
 		response.addHeader("Content-Length", "0");
 		response.addHeader("Location", "/v2/"+blob.id().repository()+"/blobs/"+blob.id().reference());
 	}
 
 	private void generateGetResponse(final Blob blob, final HttpServletRequest request,
 			final HttpServletResponse response) throws IOException, FileNotFoundException {
-		if (blob.isMounted()) {
+		if (blob.mounted()) {
 			response.setHeader("Location", "/v2/" + blob.id().repository() + "/blobs/" + blob.id().reference());
 		} else {
 			response.setStatus(HttpStatus.OK.value());

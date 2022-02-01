@@ -1,5 +1,6 @@
 package dev.pinchflat.anemoi.registry.controller.handler;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.core.MethodParameter;
@@ -10,30 +11,27 @@ import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
-import dev.pinchflat.anemoi.registry.UploadSession;
+import dev.pinchflat.anemoi.registry.controller.response.BlobMountedResponse;
 
 @Component
-public class UploadSessionResponseHandler implements HandlerMethodReturnValueHandler {
+public class BlobMountedResponseHandler implements HandlerMethodReturnValueHandler {
 
 	@Override
 	public boolean supportsReturnType(MethodParameter returnType) {
-		return UploadSession.class.equals(returnType.getParameterType());
+		return BlobMountedResponse.class.equals(returnType.getParameterType());
 	}
 
 	@Override
 	public void handleReturnValue(Object returnValue, MethodParameter returnType, ModelAndViewContainer mavContainer,
 			NativeWebRequest webRequest) throws Exception {
-		final UploadSession session = (UploadSession) returnValue;
-		if (session != null) {
+		final BlobMountedResponse resp = (BlobMountedResponse) returnValue;
+		if (resp != null) {
+			final HttpServletRequest request = ((ServletWebRequest) webRequest).getRequest();
 			final HttpServletResponse response = ((ServletWebRequest) webRequest).getResponse();
 
-			response.setStatus(HttpStatus.ACCEPTED.value());
+			response.setStatus(HttpStatus.CREATED.value());
 			response.addHeader("Content-Length", "0");
-			response.addHeader("Range", session.range());
-			response.addHeader("Blob-Upload-Session-ID", session.id().reference());
-			response.addHeader("Location", "/v2/"+session.id().repository()+"/blobs/uploads/"+session.id().reference());
+			response.addHeader("Location", "/v2/"+resp.repository()+"/blobs/"+resp.reference());
 		}
-
 	}
-
 }

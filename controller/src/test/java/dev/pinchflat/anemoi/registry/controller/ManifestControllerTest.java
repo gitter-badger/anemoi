@@ -21,6 +21,8 @@ import org.mockito.Mockito;
 import dev.pinchflat.anemoi.registry.Chunk;
 import dev.pinchflat.anemoi.registry.Id;
 import dev.pinchflat.anemoi.registry.Manifest;
+import dev.pinchflat.anemoi.registry.controller.response.GetManifestResponse;
+import dev.pinchflat.anemoi.registry.controller.response.PutManifestResponse;
 import dev.pinchflat.anemoi.registry.service.ManifestService;
 
 class ManifestControllerTest {
@@ -57,13 +59,11 @@ class ManifestControllerTest {
 
 		when(manifestService.get(id)).thenReturn(manifest);
 
-		Manifest actual = manifestController.getManifest(id);
+		GetManifestResponse actual = manifestController.getManifest(id);
 
 		assertNotNull(actual);
-		assertEquals(actual.id(), id);
-		assertEquals(actual.path(), path);
 		assertEquals(actual.contentType(), CONTENT_TYPE);
-		assertEquals(actual.digest(), DIGEST);
+		assertEquals(actual.path(), path);
 
 		verify(manifestService, times(1)).get(eq(id));
 
@@ -77,13 +77,13 @@ class ManifestControllerTest {
 
 		when(manifestService.write(CONTENT_TYPE, id, chunk)).thenReturn(manifest);
 
-		Manifest actual = manifestController.putManifest(CONTENT_TYPE, id, chunk);
+		PutManifestResponse actual = manifestController.putManifest(CONTENT_TYPE, id, chunk);
 
 		assertNotNull(actual);
-		assertEquals(actual.path(), path);
-		assertEquals(actual.contentType(), CONTENT_TYPE);
-		assertEquals(actual.digest(), DIGEST);
-
+		assertEquals(actual.digest(), "digest");
+		assertEquals(actual.reference(), REFERENCE);
+		assertEquals(actual.repository(), REPOSITORY);
+		
 		verify(manifestService, times(1)).write(CONTENT_TYPE, id, chunk);
 	}
 

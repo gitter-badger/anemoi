@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import dev.pinchflat.anemoi.registry.controller.resolver.RepositoryName;
-import dev.pinchflat.anemoi.registry.controller.response.TagsResponse;
+import dev.pinchflat.anemoi.registry.controller.response.GetTagsResponse;
 import dev.pinchflat.anemoi.registry.service.TagService;
 
 @RestController
@@ -23,14 +23,14 @@ final class TagController {
 	}
 
 	@GetMapping(path = "/v2/**/tags/list")
-	public TagsResponse getTags(//
+	public GetTagsResponse getTags(//
 			@RepositoryName String repositoryName, //
 			@RequestParam(name = "last", defaultValue = "-1") long start, //
 			@RequestParam(name = "n", defaultValue = "-1") long count) {
 
 		Pair<Long, List<String>> tags = tagService.list(repositoryName, start, count);
 
-		return new TagsResponse(repositoryName, start, count, tags.getKey(), tags.getValue());
+		return new GetTagsResponse(repositoryName, start, count, tags.getKey(), tags.getValue());
 	}
 
 }

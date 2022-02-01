@@ -1,5 +1,7 @@
 package dev.pinchflat.anemoi.registry.controller;
 
+import java.util.UUID;
+
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,11 @@ import dev.pinchflat.anemoi.registry.Chunk;
 import dev.pinchflat.anemoi.registry.Id;
 import dev.pinchflat.anemoi.registry.UploadSession;
 import dev.pinchflat.anemoi.registry.controller.resolver.RepositoryName;
+import dev.pinchflat.anemoi.registry.controller.response.BlobMountedResponse;
+import dev.pinchflat.anemoi.registry.controller.response.BlobUploadedResponse;
+import dev.pinchflat.anemoi.registry.controller.response.GetBlobResponse;
+import dev.pinchflat.anemoi.registry.controller.response.RegistryErrorResponse;
+import dev.pinchflat.anemoi.registry.controller.response.UploadSessionResponse;
 import dev.pinchflat.anemoi.registry.error.RegistryError;
 import dev.pinchflat.anemoi.registry.error.RegistryErrorType;
 import dev.pinchflat.anemoi.registry.service.BlobService;
@@ -36,8 +43,10 @@ final class BlobController {
 	}
 
 	@GetMapping("/v2/**/blobs/sha*")
-	public Blob getBlob(@NotNull Id id) {
-		return blobService.get(id);
+	public GetBlobResponse getBlob(@NotNull Id id) {
+		final Blob blob = blobService.get(id);
+		final Id responseId = blob.mounted() ? blob.source().id() : blob.id();
+		return new GetBlobResponse(responseId.repository(),responseId.reference(),blob.length(),blob.path(),blob.mounted());
 	}
 	
 	@DeleteMapping("/v2/**/blobs/sha*")
@@ -46,36 +55,41 @@ final class BlobController {
 		blobService.delete(id);
 	}
 
+	@Deprecated
+	@PostMapping(path = "/v2/**/blobs/uploads", params = "digest")
+	@ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
+	public RegistryErrorResponse initiateMonolithicBlobUpload(@RepositoryName String repositoryName) {
+		return new RegistryErrorResponse(new RegistryError(RegistryErrorType.UNSUPPORTED));
+	}
+
 	@PostMapping(path = "/v2/**/blobs/uploads", params = {"!digest","!mount","!from"})
-	public UploadSession initiateResumableBlobUpload(@RepositoryName String repositoryName) {
-		return blobService.startUploadSession(repositoryName);
+	public UploadSessionResponse startUploadSession(@RepositoryName String repositoryName) {
+		final UploadSession session = blobService.startUploadSession(repositoryName);
+		return new UploadSessionResponse(session.id().repository(), session.id().reference(),session.range());
+	}
+	
+	@PatchMapping(path = "/v2/**/blobs/uploads/*")
+	public UploadSessionResponse streamUpload(Id id, Chunk chunk) {
+		final UploadSession session = blobService.writeChunk(id, chunk);
+		return new UploadSessionResponse(session.id().repository(), session.id().reference(),session.range());
+	}
+
+	@PutMapping(path = "/v2/**/blobs/uploads/*")
+	public BlobUploadedResponse blobUpload(Id id, Chunk chunk,
+			@RequestParam(name = "digest") String digest) {
+		final Blob blob = blobService.endUploadSession(id, chunk, digest);
+		return new BlobUploadedResponse(blob.id().repository(),blob.id().reference(), blob.range());
 	}
 	
 	@PostMapping(path = "/v2/**/blobs/uploads", params = {"mount","from"})
-	public Blob mountBlob(
+	public BlobMountedResponse mountBlob(
 			@RepositoryName String repositoryName,
 			@RequestParam("mount") String reference,
 			@RequestParam("from") String repository) {
 		final Id sourceId = new Id(repository,reference);
-		return blobService.mount(repositoryName,sourceId);
+		final Blob blob = blobService.mount(repositoryName,sourceId);
+		return new BlobMountedResponse(blob.id().repository(),blob.id().reference());
 	}
 
-	@Deprecated
-	@PostMapping(path = "/v2/**/blobs/uploads", params = "digest")
-	@ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
-	public RegistryError initiateMonolithicBlobUpload(@RepositoryName String repositoryName) {
-		return new RegistryError(RegistryErrorType.UNSUPPORTED);
-	}
-
-	@PatchMapping(path = "/v2/**/blobs/uploads/*")
-	public UploadSession streamUpload(Id id, Chunk chunk) {
-		return blobService.writeChunk(id, chunk);
-	}
-
-	@PutMapping(path = "/v2/**/blobs/uploads/*")
-	public Blob blobUpload(Id id, Chunk chunk,
-			@RequestParam(name = "digest") String digest) {
-		return blobService.endUploadSession(id, chunk, digest);
-	}
 
 }

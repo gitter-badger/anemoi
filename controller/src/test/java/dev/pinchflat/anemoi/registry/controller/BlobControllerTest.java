@@ -24,14 +24,18 @@ import dev.pinchflat.anemoi.registry.Blob;
 import dev.pinchflat.anemoi.registry.Chunk;
 import dev.pinchflat.anemoi.registry.Id;
 import dev.pinchflat.anemoi.registry.UploadSession;
-import dev.pinchflat.anemoi.registry.error.RegistryError;
+import dev.pinchflat.anemoi.registry.controller.response.BlobMountedResponse;
+import dev.pinchflat.anemoi.registry.controller.response.BlobUploadedResponse;
+import dev.pinchflat.anemoi.registry.controller.response.GetBlobResponse;
+import dev.pinchflat.anemoi.registry.controller.response.RegistryErrorResponse;
+import dev.pinchflat.anemoi.registry.controller.response.UploadSessionResponse;
 import dev.pinchflat.anemoi.registry.error.RegistryErrorType;
 import dev.pinchflat.anemoi.registry.service.BlobService;
 
 class BlobControllerTest {
 	private static final String REPOSITORY = "REPOSITORY";
 	private static final String REFERENCE = "sha256:abcdef01234566789";
-	
+
 	private final BlobService blobService;
 	private final BlobController blobController;
 	private final Id id = new Id(REPOSITORY, REFERENCE);
@@ -52,23 +56,43 @@ class BlobControllerTest {
 	}
 
 	@Test
-	void testGetBlob() {
+	void testGetNormalBlob() {
 		final Path path = Path.of("test");
 		final Blob blob = new Blob(id, path, 100);
 
 		when(blobService.get(id)).thenReturn(blob);
 
-		final Blob actual = blobController.getBlob(id);
+		final GetBlobResponse actual = blobController.getBlob(id);
 
 		assertNotNull(actual);
-		assertEquals(path, actual.path());
 		assertEquals(100, actual.length());
-		assertEquals(REPOSITORY, actual.id().repository());
-		assertEquals(REFERENCE, actual.id().reference());
+		assertFalse(actual.mounted());
+		assertEquals(path, actual.path());
+		assertEquals(REFERENCE, actual.reference());
+		assertEquals(REPOSITORY, actual.repository());
 
 		verify(blobService, times(1)).get(id);
 	}
-	
+
+	@Test
+	void testGetMountedBlob() {
+		final Path path = Path.of("test");
+		final Blob blob = new Blob(new Id("INVALID", "INVALIDREF"), new Blob(id, path, 100));
+
+		when(blobService.get(id)).thenReturn(blob);
+
+		final GetBlobResponse actual = blobController.getBlob(id);
+
+		assertNotNull(actual);
+		assertEquals(0, actual.length());
+		assertTrue(actual.mounted());
+		assertNull(actual.path());
+		assertEquals(REFERENCE, actual.reference());
+		assertEquals(REPOSITORY, actual.repository());
+
+		verify(blobService, times(1)).get(id);
+	}
+
 	@Test
 	void testDeleteBLob() {
 		assertDoesNotThrow(() -> blobController.deleteBlob(id));
@@ -76,49 +100,45 @@ class BlobControllerTest {
 	}
 
 	@Test
-	void testInitiateResumableBlobUpload() {
+	void testStartUploadSession() {
 		final UploadSession bus = new UploadSession(id, 1, 100);
 
 		when(blobService.startUploadSession(REPOSITORY)).thenReturn(bus);
 
-		final UploadSession actual = blobController.initiateResumableBlobUpload(REPOSITORY);
+		final UploadSessionResponse actual = blobController.startUploadSession(REPOSITORY);
 
 		assertNotNull(actual);
-		assertEquals("1-100", actual.getRange());
-		assertEquals(1, actual.offsetStart());
-		assertEquals(100, actual.offsetEnd());
-		assertEquals(REPOSITORY, actual.id().repository());
-		assertEquals(REFERENCE, actual.id().reference());
+		assertEquals("1-100", actual.range());
+		assertEquals(REPOSITORY, actual.repository());
+		assertEquals(REFERENCE, actual.reference());
 		verify(blobService, times(1)).startUploadSession(REPOSITORY);
 	}
-	
+
 	@Test
 	void testMountBlob() {
-		final Blob source = new Blob(id,null);
-		final Blob blob = new Blob(new Id("TARGET",REFERENCE), source);
+		final Blob source = new Blob(id, null);
+		final Blob blob = new Blob(new Id("TARGET", REFERENCE), source);
 
-		when(blobService.mount("TARGET",id)).thenReturn(blob);
+		when(blobService.mount("TARGET", id)).thenReturn(blob);
 
-		final Blob actual= blobController.mountBlob("TARGET",REFERENCE,REPOSITORY);
+		final BlobMountedResponse actual = blobController.mountBlob("TARGET", REFERENCE, REPOSITORY);
 
 		assertNotNull(actual);
-		assertEquals("0-0", actual.getRange());
-		assertEquals("TARGET", actual.id().repository());
-		assertEquals(REFERENCE, actual.id().reference());
-		assertEquals(source, actual.source());
-		assertTrue(blob.isMounted());
-
-		verify(blobService, times(1)).mount("TARGET",id);
+		assertEquals("TARGET", actual.repository());
+		assertEquals(REFERENCE, actual.reference());
+		
+		verify(blobService, times(1)).mount("TARGET", id);
 	}
-	
+
 	@Test
 	void testInitiateMonolithicBlobUpload() {
 
 		@SuppressWarnings("deprecation")
-		final RegistryError actual= blobController.initiateMonolithicBlobUpload(REPOSITORY);
+		final RegistryErrorResponse actual = blobController.initiateMonolithicBlobUpload(REPOSITORY);
 
 		assertNotNull(actual);
-		assertEquals(RegistryErrorType.UNSUPPORTED, actual.type());
+		assertNotNull(actual.error());
+		assertEquals(RegistryErrorType.UNSUPPORTED, actual.error().type());
 	}
 
 	@Test
@@ -130,12 +150,12 @@ class BlobControllerTest {
 
 		when(blobService.writeChunk(id, chunk)).thenReturn(bus);
 
-		final UploadSession actual = blobController.streamUpload(id, chunk);
+		final UploadSessionResponse actual = blobController.streamUpload(id, chunk);
 
 		assertNotNull(actual);
-		assertEquals("0-100", actual.getRange());
-		assertEquals(REPOSITORY, actual.id().repository());
-		assertEquals(REFERENCE, actual.id().reference());
+		assertEquals("0-100", actual.range());
+		assertEquals(REFERENCE, actual.reference());
+		assertEquals(REPOSITORY, actual.repository());
 
 		verify(blobService, times(1)).writeChunk(id, chunk);
 	}
@@ -150,15 +170,13 @@ class BlobControllerTest {
 
 		when(blobService.endUploadSession(id, chunk, REFERENCE)).thenReturn(blob);
 
-		final Blob actual = blobController.blobUpload(id, chunk, REFERENCE);
+		final BlobUploadedResponse actual = blobController.blobUpload(id, chunk, REFERENCE);
 
 		assertNotNull(actual);
 
-		assertEquals("0-99", actual.getRange());
-		assertEquals(REPOSITORY, actual.id().repository());
-		assertEquals(REFERENCE, actual.id().reference());
-		assertNull(actual.source());
-		assertFalse(actual.isMounted());
+		assertEquals("0-99", actual.range());
+		assertEquals(REFERENCE, actual.reference());
+		assertEquals(REPOSITORY, actual.repository());
 
 		verify(blobService, times(1)).endUploadSession(id, chunk, REFERENCE);
 	}

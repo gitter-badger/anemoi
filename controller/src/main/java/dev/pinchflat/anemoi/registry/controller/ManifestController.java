@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 import dev.pinchflat.anemoi.registry.Chunk;
 import dev.pinchflat.anemoi.registry.Id;
 import dev.pinchflat.anemoi.registry.Manifest;
+import dev.pinchflat.anemoi.registry.controller.response.GetManifestResponse;
+import dev.pinchflat.anemoi.registry.controller.response.PutManifestResponse;
 import dev.pinchflat.anemoi.registry.service.ManifestService;
 
 @RestController
@@ -26,16 +28,18 @@ final class ManifestController {
 	}
 
 	@GetMapping("/v2/**/manifests/*")
-	public Manifest getManifest(Id id) {
-		return manifestService.get(id);
+	public GetManifestResponse getManifest(Id id) {
+		final var manifest = manifestService.get(id);
+		return new GetManifestResponse(manifest.contentType(),manifest.path());
 	}
 	
 	@PutMapping("/v2/**/manifests/*")
-	public Manifest putManifest(
+	public PutManifestResponse putManifest(
 			@RequestHeader("Content-Type") String contentType,
 			Id id,
 			Chunk content) {
-		return manifestService.write(contentType, id, content);
+		final var manifest = manifestService.write(contentType, id, content);
+		return new PutManifestResponse(manifest.id().repository(), manifest.id().reference(), manifest.digest());
 	}
 	
 	@DeleteMapping("/v2/**/manifests/*")

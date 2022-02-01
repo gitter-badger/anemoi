@@ -17,7 +17,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import dev.pinchflat.anemoi.registry.controller.response.TagsResponse;
+import dev.pinchflat.anemoi.registry.controller.response.GetTagsResponse;
 import dev.pinchflat.anemoi.registry.service.TagService;
 
 class TagControllerTest {
@@ -45,7 +45,7 @@ class TagControllerTest {
 		
 		when(tagService.list(REPOSITORY_NAME, START, COUNT)).thenReturn(tagsWithTotalTagCount);
 		
-		TagsResponse response = tagController.getTags(REPOSITORY_NAME, START, COUNT);
+		GetTagsResponse response = tagController.getTags(REPOSITORY_NAME, START, COUNT);
 		
 		assertNotNull(response);
 		assertEquals(COUNT, response.count());

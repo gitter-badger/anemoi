@@ -12,11 +12,11 @@ public record Blob (Id id, Path path, long length, Blob source) {
 		this(id,null,0,source);
 	}
 	
-	public boolean isMounted() {
+	public boolean mounted() {
 		return source() != null;
 	}
 	
-	public String getRange() {
+	public String range() {
 		return "0-"+Math.max(0,length-1);
 	}
 }

@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.Test;
 
-import dev.pinchflat.anemoi.registry.controller.response.BaseResponse;
+import dev.pinchflat.anemoi.registry.controller.response.GetBaseResponse;
 
 class BaseControllerTest {
 
@@ -12,7 +12,7 @@ class BaseControllerTest {
 	
 	@Test
 	void testGetBase() {
-		BaseResponse actual = baseController.getBase();
+		GetBaseResponse actual = baseController.getBase();
 		assertNotNull(actual);
 	}
 
