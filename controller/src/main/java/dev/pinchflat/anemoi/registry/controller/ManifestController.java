@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import dev.pinchflat.anemoi.registry.Chunk;
 import dev.pinchflat.anemoi.registry.Id;
-import dev.pinchflat.anemoi.registry.Manifest;
 import dev.pinchflat.anemoi.registry.controller.response.GetManifestResponse;
 import dev.pinchflat.anemoi.registry.controller.response.PutManifestResponse;
 import dev.pinchflat.anemoi.registry.service.ManifestService;

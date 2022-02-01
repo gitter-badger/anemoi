@@ -1,7 +1,5 @@
 package dev.pinchflat.anemoi.registry.controller;
 
-import java.util.UUID;
-
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
