@@ -11,7 +11,7 @@ import dev.pinchflat.anemoi.registry.controller.response.GetBlobResponse;
 
 @Component
 public class GetBlobReturnValueMapper extends AbstractReturnValueHandler<GetBlobResponse> {
-	private static final String LOCATION_FORMAT = "\"/v2/%s/blobs/%s";
+	private static final String LOCATION_FORMAT = "/v2/%s/blobs/%s";
 	
 	protected GetBlobReturnValueMapper() {
 		super(GetBlobResponse.class);

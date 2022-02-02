@@ -5,28 +5,28 @@ import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
-import dev.pinchflat.anemoi.registry.UploadSession;
+import dev.pinchflat.anemoi.registry.controller.response.UploadSessionResponse;
 
 @Component
-public class UploadSessionReturnValueMapper extends AbstractReturnValueHandler<UploadSession> {
+public class UploadSessionReturnValueMapper extends AbstractReturnValueHandler<UploadSessionResponse> {
 	
-	private static final String LOCATION_FORMAT = "\"/v2/%s/blobs/uploads/%s";
+	private static final String LOCATION_FORMAT = "/v2/%s/blobs/uploads/%s";
 
 	protected UploadSessionReturnValueMapper() {
-		super(UploadSession.class);
+		super(UploadSessionResponse.class);
 	}
 
 	@Override
-	public HttpStatus getStatus(UploadSession value) {
+	public HttpStatus getStatus(UploadSessionResponse value) {
 		return HttpStatus.ACCEPTED;
 	}
 
 	@Override
-	public Map<String, String> getHeaders(String path, UploadSession value) {
+	public Map<String, String> getHeaders(String path, UploadSessionResponse value) {
 		return Map.of( //
 				"Content-Length", "0", //
 				"Range", value.range(), //
-				"Blob-Upload-Session-ID", value.id().reference(), //
-				"Location", String.format(LOCATION_FORMAT, value.id().repository(), value.id().reference()));
+				"Blob-Upload-Session-ID", value.reference(), //
+				"Location", String.format(LOCATION_FORMAT, value.repository(), value.reference()));
 	}
 }

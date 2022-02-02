@@ -9,12 +9,7 @@ public record GetTagsResponse(String repositoryName, long start, long count, lon
 	}
 	
 	public boolean hasNext() {
-		if (start >= 0 && count > 0) {
-			if (nextPageOffset() < (total-1)) {
-				return true;
-			}
-		}
-		return false;
+		return nextPageOffset() < (total-1);
 	}
 	
 }

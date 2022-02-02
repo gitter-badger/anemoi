@@ -10,7 +10,7 @@ import dev.pinchflat.anemoi.registry.controller.response.PutManifestResponse;
 @Component
 public class PutManifestReturnValueMapper extends AbstractReturnValueHandler<PutManifestResponse> {
 	
-	private static final String LOCATION_FORMAT = "\"/v2/%s/returnValue/%s";
+	private static final String LOCATION_FORMAT = "/v2/%s/manifests/%s";
 
 	protected PutManifestReturnValueMapper() {
 		super(PutManifestResponse.class);
