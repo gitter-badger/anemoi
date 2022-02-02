@@ -24,7 +24,7 @@ class UploadSessionReturnValueMapperTest {
 	private static final String REPOSITORY = "REPO";
 	private static final String REFERENCE = "REF";
 	private static final String CONTENT_TYPE = "0-99";
-	private static final String LOCATION = "/v2/" + REPOSITORY + "/blobs/" + REFERENCE;
+	private static final String LOCATION = "/v2/" + REPOSITORY + "/blobs/uploads/" + REFERENCE;
 
 	private final UploadSessionReturnValueMapper mapper = new UploadSessionReturnValueMapper();
 
@@ -36,10 +36,12 @@ class UploadSessionReturnValueMapperTest {
 	@Test
 	void testGetHeaders() {
 		UploadSessionResponse use = new UploadSessionResponse(REPOSITORY, REFERENCE, CONTENT_TYPE);
-		final Map<String, String> expected = Map.of("Range","0-99","Content-Length", "0", "Location", LOCATION,"Blob-Upload-Session-ID","REF");
+		final Map<String, String> expected = Map.of("Range","0-99","Blob-Upload-Session-ID","REF","Content-Length", "0", "Location", LOCATION);
 
 		final Map<String, String> actual = mapper.getHeaders("/test", use);
-		assertEquals(expected, actual);
+		
+		assertEquals(expected.size(),actual.size());
+		expected.entrySet().forEach(kv->assertEquals(kv.getValue(), actual.get(kv.getKey())));
 	}
 
 	@Test

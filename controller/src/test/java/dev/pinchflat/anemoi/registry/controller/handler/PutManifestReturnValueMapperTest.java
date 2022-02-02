@@ -37,7 +37,9 @@ class PutManifestReturnValueMapperTest {
 		Map<String,String> expected = Map.of("Content-Length","0","Location",LOCATION,"Docker-Content-Digest",DIGEST);
 		PutManifestResponse response = new PutManifestResponse(REPOSITORY,REFERENCE,DIGEST);
 		Map<String,String> actual = mapper.getHeaders("PUT", response);
-		assertEquals(expected, actual);
+		
+		assertEquals(expected.size(),actual.size());
+		expected.entrySet().forEach(kv->assertEquals(kv.getValue(), actual.get(kv.getKey())));
 	}
 
 	@Test

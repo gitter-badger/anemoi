@@ -38,7 +38,9 @@ class BlobUploadedReturnValueMapperTest {
 		final Map<String, String> expected = Map.of("Range", RANGE, "Content-Length", "0", "Location", LOCATION);
 
 		final Map<String, String> actual = mapper.getHeaders("/test", bur);
-		assertEquals(expected, actual);
+		
+		assertEquals(expected.size(),actual.size());
+		expected.entrySet().forEach(kv->assertEquals(kv.getValue(), actual.get(kv.getKey())));
 	}
 
 	@Test

@@ -45,7 +45,8 @@ private final GetBlobReturnValueMapper mapper = new GetBlobReturnValueMapper();
 		Map<String,String> expected = Map.of("Content-Length","0", "Content-Type","application/octet-stream");
 		Map<String,String> actual = mapper.getHeaders("/path", resp);
 		
-		assertEquals(expected, actual);
+		assertEquals(expected.size(),actual.size());
+		expected.entrySet().forEach(kv->assertEquals(kv.getValue(), actual.get(kv.getKey())));
 	}
 	
 	@Test
@@ -54,7 +55,8 @@ private final GetBlobReturnValueMapper mapper = new GetBlobReturnValueMapper();
 		Map<String,String> expected = Map.of("Location",LOCATION);
 		Map<String,String> actual = mapper.getHeaders("/path", resp);
 		
-		assertEquals(expected, actual);
+		assertEquals(expected.size(),actual.size());
+		expected.entrySet().forEach(kv->assertEquals(kv.getValue(), actual.get(kv.getKey())));
 	}
 
 	@Test

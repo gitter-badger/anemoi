@@ -31,10 +31,14 @@ class GetManifestReturnValueMapperTest {
 
 	@Test
 	void testGetHeaders() {
-		GetManifestResponse resp = new GetManifestResponse("content/type",Path.of("test"));
-		Map<String,String> headers = mapper.getHeaders("/path", resp);
+		Map<String,String> expected = Map.of("Content-Type","content/type");
 		
-		assertEquals(Map.of("Content-Type","content/type"), headers);
+		GetManifestResponse resp = new GetManifestResponse("content/type",Path.of("test"));
+		Map<String,String> actual= mapper.getHeaders("/path", resp);
+		
+		assertEquals(expected.size(),actual.size());
+		expected.entrySet().forEach(kv->assertEquals(kv.getValue(), actual.get(kv.getKey())));
+
 	}
 
 	@Test

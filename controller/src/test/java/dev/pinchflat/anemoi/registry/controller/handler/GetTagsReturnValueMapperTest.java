@@ -37,7 +37,10 @@ class GetTagsReturnValueMapperTest {
 		final Map<String, String> expected = Map.of("Content-Type",MediaType.APPLICATION_JSON_VALUE);
 		
 		final Map<String, String> actual = mapper.getHeaders("/test", gtr);
-		assertEquals(expected, actual);
+
+		assertEquals(expected.size(),actual.size());
+		expected.entrySet().forEach(kv->assertEquals(kv.getValue(), actual.get(kv.getKey())));
+
 	}
 	
 	@Test
@@ -48,7 +51,10 @@ class GetTagsReturnValueMapperTest {
 				"Link", "/test?n=100&last=99; rel=\"next\"");
 		
 		final Map<String, String> actual = mapper.getHeaders("/test", gtr);
-		assertEquals(expected, actual);
+		
+		assertEquals(expected.size(),actual.size());
+		expected.entrySet().forEach(kv->assertEquals(kv.getValue(), actual.get(kv.getKey())));
+
 	}
 
 	@Test

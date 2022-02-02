@@ -45,7 +45,13 @@ class RegistryErrorReturnValueMapperTest {
 	
 	@Test
 	void testGetHeaders() {
-		assertEquals(Map.of(), mapper.getHeaders(null, null));
+		Map<String,String> expected = Map.of();
+		
+		Map<String,String> actual = mapper.getHeaders(null, null);
+		
+		assertEquals(expected.size(),actual.size());
+		expected.entrySet().forEach(kv->assertEquals(kv.getValue(), actual.get(kv.getKey())));
+		
 	}
 
 	@Test
