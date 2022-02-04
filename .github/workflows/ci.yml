@@ -19,7 +19,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        language: [ 'java','javascript' ]
+        language: [ 'java' ]
 
     steps:
     - name: checkout
