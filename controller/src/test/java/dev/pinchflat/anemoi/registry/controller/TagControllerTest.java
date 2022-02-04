@@ -12,7 +12,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
@@ -32,7 +31,6 @@ import dev.pinchflat.anemoi.registry.service.TagService;
 		RegistryWebMvcConfigurer.class, //
 		TagController.class, //
 		RepositoryNameMethodArgumentResolver.class})
-@AutoConfigureMockMvc(addFilters = false)
 class TagControllerTest {
 	private static final String REPOSITORY = "REPOSITORY";
 	private static final String REPOSITORY_WITH_NS = "NS/REPOSITORY";

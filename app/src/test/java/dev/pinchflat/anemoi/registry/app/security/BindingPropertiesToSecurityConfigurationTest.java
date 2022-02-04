@@ -1,4 +1,4 @@
-package dev.pinchflat.anemoi.registry.controller.security;
+package dev.pinchflat.anemoi.registry.app.security;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -11,6 +11,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
+
+import dev.pinchflat.anemoi.registry.app.security.SecurityConfiguration;
 
 @ExtendWith(SpringExtension.class)
 @EnableConfigurationProperties(value = SecurityConfiguration.class)

@@ -1,4 +1,4 @@
-package dev.pinchflat.anemoi.registry.controller.security;
+package dev.pinchflat.anemoi.registry.app.security;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -14,30 +14,32 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
+import dev.pinchflat.anemoi.registry.app.security.AnemoiWebSecurityConfigurerAdapter;
+import dev.pinchflat.anemoi.registry.app.security.SecurityConfiguration;
 import dev.pinchflat.anemoi.registry.controller.BaseController;
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(controllers = BaseController.class)
-@TestPropertySource(locations = "classpath:unsecured.properties")
+@TestPropertySource(locations = "classpath:secured.properties")
 @ContextConfiguration(classes = { //
 		BaseController.class, //
 		SecurityConfiguration.class, //
 		AnemoiWebSecurityConfigurerAdapter.class//
 })
-class UnsecuredRegistryTest {
-
+class SecuredRegistryTest {
+	
 	@Autowired
 	MockMvc mockMvc;
 
 	@Test
 	@WithAnonymousUser
-	void testAnonUserWhenSecurityIsDisabled() throws Exception {
-		mockMvc.perform(get("/v2")).andExpect(status().isOk());
+	void testAnonUser() throws Exception {
+		mockMvc.perform(get("/v2")).andExpect(status().isUnauthorized());
 	}
-
+	
 	@Test
 	@WithMockUser(username = "test", password = "pass", roles = "user")
-	void testUserWhenSecurityIsDisabled() throws Exception {
+	void testValidUser() throws Exception {
 		mockMvc.perform(get("/v2")).andExpect(status().isOk());
 	}
 

@@ -24,11 +24,10 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -39,23 +38,23 @@ import dev.pinchflat.anemoi.registry.Manifest;
 import dev.pinchflat.anemoi.registry.controller.config.RegistryWebMvcConfigurer;
 import dev.pinchflat.anemoi.registry.controller.resolver.ChunkMethodArgumentResolver;
 import dev.pinchflat.anemoi.registry.controller.resolver.IdMethodArgumentResolver;
+import dev.pinchflat.anemoi.registry.controller.resolver.RepositoryNameMethodArgumentResolver;
 import dev.pinchflat.anemoi.registry.service.ManifestService;
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(controllers = ManifestController.class)
-@TestPropertySource(locations = "classpath:unsecured.properties")
 @ContextConfiguration(classes = { //
 		RegistryWebMvcConfigurer.class, //
 		ManifestController.class, //
 		IdMethodArgumentResolver.class, //
-		ChunkMethodArgumentResolver.class})
-@AutoConfigureMockMvc(addFilters = false)
+		ChunkMethodArgumentResolver.class,//
+		RepositoryNameMethodArgumentResolver.class})
 class ManifestControllerTest {
 	private static final String REPOSITORY = "REPOSITORY";
 	private static final String REPOSITORY_WITH_NS = "NS/REPOSITORY";
 	private static final String REPOSITORY_WITH_MULTI_NS = "NS/NS2/REPOSITORY";
 	private static final String REFERENCE = "REFERENCE";
-	private static final String CONTENT_TYPE = "content/type";
+	private static final String CONTENT_TYPE = MediaType.APPLICATION_JSON_UTF8_VALUE;
 	private static final String CONTENT = "{'a':'b'}";
 	private static final long CONTENT_LENGTH = CONTENT.getBytes().length;
 	private static final String DIGEST = "digest";
@@ -124,7 +123,7 @@ class ManifestControllerTest {
 		Id id = new Id(repositoryName, REFERENCE);
 		Manifest manifest = new Manifest(id, null, CONTENT_TYPE, CONTENT_LENGTH, DIGEST);
 
-		when(manifestService.write(eq(CONTENT_TYPE), eq(id), any(Chunk.class))).thenReturn(manifest);
+		when(manifestService.write(any(String.class), eq(id), any(Chunk.class))).thenReturn(manifest);
 
 		mockMvc//
 				.perform(put("/v2/" + repositoryName + "/manifests/" + REFERENCE)//
@@ -161,5 +160,5 @@ class ManifestControllerTest {
 
 		verify(manifestService, times(1)).delete(id);
 	}
-	
+
 }

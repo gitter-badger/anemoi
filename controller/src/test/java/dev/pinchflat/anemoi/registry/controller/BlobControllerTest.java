@@ -31,12 +31,10 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.util.NestedServletException;
@@ -55,14 +53,12 @@ import dev.pinchflat.anemoi.registry.service.BlobService;
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(controllers = BlobController.class)
-@TestPropertySource(locations = "classpath:unsecured.properties")
 @ContextConfiguration(classes = { //
 		RegistryWebMvcConfigurer.class, //
 		BlobController.class, //
 		IdMethodArgumentResolver.class, //
 		ChunkMethodArgumentResolver.class, //
 		RepositoryNameMethodArgumentResolver.class })
-@AutoConfigureMockMvc(addFilters = false)
 public class BlobControllerTest {
 
 	private static final String REPOSITORY = "REPOSITORY";

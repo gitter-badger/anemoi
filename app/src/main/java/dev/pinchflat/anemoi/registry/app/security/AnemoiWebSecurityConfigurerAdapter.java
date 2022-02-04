@@ -1,4 +1,4 @@
-package dev.pinchflat.anemoi.registry.controller.security;
+package dev.pinchflat.anemoi.registry.app.security;
 
 import java.util.Optional;
 
