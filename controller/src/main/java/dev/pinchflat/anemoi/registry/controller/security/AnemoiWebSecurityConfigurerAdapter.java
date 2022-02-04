@@ -13,7 +13,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
 @Configuration
-class AnemoiWebSecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
+public class AnemoiWebSecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
 
 	@NotNull
 	protected static final Logger logger = LoggerFactory.getLogger(AnemoiWebSecurityConfigurerAdapter.class);

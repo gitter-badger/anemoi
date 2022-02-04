@@ -1,61 +1,112 @@
 package dev.pinchflat.anemoi.registry.controller;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 import java.util.List;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import dev.pinchflat.anemoi.registry.controller.response.GetTagsResponse;
+import dev.pinchflat.anemoi.registry.controller.config.RegistryWebMvcConfigurer;
+import dev.pinchflat.anemoi.registry.controller.resolver.RepositoryNameMethodArgumentResolver;
+import dev.pinchflat.anemoi.registry.service.TagList;
 import dev.pinchflat.anemoi.registry.service.TagService;
 
+@ExtendWith(SpringExtension.class)
+@WebMvcTest(controllers = TagController.class)
+@ContextConfiguration(classes = { //
+		RegistryWebMvcConfigurer.class, //
+		TagController.class, //
+		RepositoryNameMethodArgumentResolver.class})
+@AutoConfigureMockMvc(addFilters = false)
 class TagControllerTest {
-	private static final String REPOSITORY_NAME = "REPO";
-	private static final long START = 0;
-	private static final long COUNT = 2;
-	
-	private final TagService tagService = mock(TagService.class);
-	private final TagController tagController = new TagController(tagService);
-			
+	private static final String REPOSITORY = "REPOSITORY";
+	private static final String REPOSITORY_WITH_NS = "NS/REPOSITORY";
+	private static final String REPOSITORY_WITH_MULTI_NS = "NS/NS2/REPOSITORY";
+
+	@MockBean
+	TagService tagService;
+
+	@Autowired
+	private MockMvc mockMvc;
+
 	@BeforeEach
-	void setUp() {
-		reset(tagService);
-	}
-	
-	@AfterEach
-	void tearDown() {
-		verifyNoMoreInteractions(tagService);
-	}
-	
-	@Test
-	void testGetTags() {
-		List<String> tags = List.of("1", "2");
-		Pair<Long,List<String>> tagsWithTotalTagCount = Pair.of(1000l, tags);
-		
-		when(tagService.list(REPOSITORY_NAME, START, COUNT)).thenReturn(tagsWithTotalTagCount);
-		
-		GetTagsResponse response = tagController.getTags(REPOSITORY_NAME, START, COUNT);
-		
-		assertNotNull(response);
-		assertEquals(COUNT, response.count());
-		assertTrue(response.hasNext());
-		assertEquals(START+COUNT-1, response.nextPageOffset());
-		assertEquals(REPOSITORY_NAME,response.repositoryName());
-		assertEquals(START, response.start());
-		assertEquals(tags, response.tags());
-		
-		verify(tagService,times(1)).list(REPOSITORY_NAME, START, COUNT);
+	void setup() {
+		Mockito.reset(tagService);
 	}
 
+	@AfterEach
+	void tearDown() {
+		Mockito.verifyNoMoreInteractions(tagService);
+	}
+
+	@ParameterizedTest
+	@ValueSource(strings = { REPOSITORY, REPOSITORY_WITH_NS,REPOSITORY_WITH_MULTI_NS })
+	void testGetTags(String repositoryName) throws Exception {
+		TagList tagList = new TagList(repositoryName,0,2,2l, List.of("A", "B"));
+		Mockito.when(tagService.list(repositoryName, -1, -1)).thenReturn(tagList);
+
+		mockMvc//
+				.perform(get("/v2/" + repositoryName + "/tags/list"))//
+				.andExpect(MockMvcResultMatchers.status().isOk())//
+				.andExpect(MockMvcResultMatchers.header().string("Content-Type", MediaType.APPLICATION_JSON_VALUE))//
+				.andExpect(MockMvcResultMatchers.content().json("['A','B']"));
+
+		Mockito.verify(tagService, times(1)).list(repositoryName, -1, -1);
+	}
+
+	@ParameterizedTest
+	@ValueSource(strings = { REPOSITORY, REPOSITORY_WITH_NS,REPOSITORY_WITH_MULTI_NS })
+	void testGetTagsPaginated(String repositoryName) throws Exception {
+		TagList tagList = new TagList(repositoryName,0,2,100l, List.of("A", "B"));
+		Mockito.when(tagService.list(repositoryName, 0, 2)).thenReturn(tagList);
+
+		mockMvc//
+				.perform(get("/v2/" + repositoryName + "/tags/list?n=2&last=0"))//
+				.andExpect(MockMvcResultMatchers.status().isOk())//
+				.andExpect(MockMvcResultMatchers.header().string("Content-Type", MediaType.APPLICATION_JSON_VALUE))//
+				.andExpect(MockMvcResultMatchers.header().string("Link", "/v2/"+repositoryName+"/tags/list?n=2&last=1; rel=\"next\""))//
+				.andExpect(MockMvcResultMatchers.content().json("['A','B']"));
+
+		Mockito.verify(tagService, times(1)).list(repositoryName, 0, 2);
+	}
+	
+	/*
+	@ParameterizedTest
+	@ValueSource(strings = { REPOSITORY, REPOSITORY_WITH_NS,REPOSITORY_WITH_MULTI_NS })
+	void testAccessDenied(String repositoryName) throws Exception {
+		Mockito.when(tagService.list(repositoryName, -1, -1)).thenThrow(AccessDeniedException.class);
+
+		invokeFailureEndpoint(//
+				get("/v2/" + repositoryName + "/tags/list"),//
+				403, //
+				"DENIED", // 
+				"requested access to the resource is denied");
+
+		Mockito.verify(tagService, times(1)).list(repositoryName, -1, -1);
+	}
+
+	private void invokeFailureEndpoint(RequestBuilder rb, int status, String code, String message)
+			throws Exception {
+		mockMvc//
+				.perform(rb)//
+				.andExpect(MockMvcResultMatchers.status().is(status))//
+				.andExpect(MockMvcResultMatchers.header().string("Content-Type", MediaType.APPLICATION_JSON_VALUE))//
+				.andExpect(MockMvcResultMatchers.content().json("{'errors':[{'code':'"+code+"','message':'"+message+"'}]}"));
+	}
+	*/
 }

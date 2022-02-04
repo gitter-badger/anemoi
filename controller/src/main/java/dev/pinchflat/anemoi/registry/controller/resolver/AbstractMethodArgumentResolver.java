@@ -10,6 +10,7 @@ import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.io.IOUtils;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.MethodParameter;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
@@ -17,6 +18,7 @@ import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
+@Qualifier("anemoi")
 abstract class AbstractMethodArgumentResolver<T> implements HandlerMethodArgumentResolver {
 
 	private final Class<T> supportedType;
@@ -58,6 +60,7 @@ abstract class AbstractMethodArgumentResolver<T> implements HandlerMethodArgumen
 
 	private T parseBody(HttpServletRequest request) throws IOException {
 		File f = File.createTempFile("prm", "test");
+		f.deleteOnExit();
 		long size = 0;
 		try (FileOutputStream fos = new FileOutputStream(f)) {
 			size = IOUtils.copy(request.getInputStream(), fos);

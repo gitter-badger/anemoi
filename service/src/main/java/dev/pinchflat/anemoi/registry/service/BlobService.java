@@ -18,7 +18,8 @@ public interface BlobService {
 	Blob get(@NonNull Id id);
 
 	// DIGEST_INVALID,NAME_INVALID,NAME_UNKNOWN,BLOB_UNKNOWN,UNSUPPORTED,NAME_UNKNOWN,DENIED
-	void delete(@NonNull Id id);
+	@NonNull
+	Blob delete(@NonNull Id id);
 	
 	// TODO: throws Invalid Repository Name Exception
 	// TODO: Implement Access Denied
@@ -41,4 +42,7 @@ public interface BlobService {
 	// DIGEST_INVALID,NAME_INVALID,UNSUPPORTED
 	@NonNull
 	Blob mount(@NonNull String repositoryName, @NonNull Id sourceId);
+
+	@NonNull
+	UploadSession getUploadStatus(@NonNull Id id);
 }

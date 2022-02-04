@@ -1,7 +1,7 @@
 package dev.pinchflat.anemoi.registry.error;
 
 public enum RegistryErrorType {
-	BLOB_UNKNOWN(400,"blob unknown to registry"),//
+	BLOB_UNKNOWN(404,"blob unknown to registry"),//
 	BLOB_UPLOAD_INVALID(400, "blob upload invalid"),//
 	BLOB_UPLOAD_UNKNOWN(404,"blob upload unknown to registry"),//
 	DIGEST_INVALID(400,"provided digest did not match uploaded content"), //

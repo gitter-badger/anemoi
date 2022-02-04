@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class RepositoryNameMethodArgumentResolver extends AbstractMethodArgumentResolver<String> {
 
-	private final Pattern uriPattern = Pattern.compile("\\/v2\\/(?<repository>.*)\\/blobs\\/uploads");
+	private final Pattern uriPattern = Pattern.compile("\\/v2\\/(?<r>.*)\\/((blobs\\/uploads)|(tags\\/list))");
 
 	protected RepositoryNameMethodArgumentResolver() {
 		super(String.class, RepositoryName.class);
@@ -23,7 +23,7 @@ public class RepositoryNameMethodArgumentResolver extends AbstractMethodArgument
 	protected String parse(String requestPath) {
 		final Matcher matcher = uriPattern.matcher(requestPath);
 		if (matcher.find()) {
-			return matcher.group("repository");
+			return matcher.group("r");
 		}
 		throw new IllegalArgumentException(requestPath + " is not supported by repository name pattern.");
 	}

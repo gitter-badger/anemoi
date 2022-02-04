@@ -8,7 +8,7 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 @Component
 @ConfigurationProperties(prefix= "anemoi.security")
-final class SecurityConfiguration {
+public final class SecurityConfiguration {
 
 	private boolean enabled;
 	
